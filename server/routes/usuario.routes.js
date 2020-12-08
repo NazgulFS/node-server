@@ -3,8 +3,10 @@ const app = express();
 const Usuario = require('../models/usuario.models');
 const bcrypt = require('bcrypt');
 const _= require('underscore');
+const { verificarToken,verificaAdminRole } = require('../middlewares/auth');
 
-app.get('/usuario', (req, res) => {
+app.get('/usuario', verificarToken, (req, res) => {
+
     // opcionales
     let desde = req.query.desde || 0;
     desde = Number(desde);
@@ -33,7 +35,7 @@ app.get('/usuario', (req, res) => {
         })
 });
 
-app.post('/usuario', (req, res) => {
+app.post('/usuario', [verificarToken, verificaAdminRole], (req, res) => {
     let body = req.body;
 
     let usuario = new Usuario({
@@ -59,7 +61,7 @@ app.post('/usuario', (req, res) => {
 });
 
 // Actualización de usuario
-app.put('/usuario/:id', (req, res) => {
+app.put('/usuario/:id', verificarToken, (req, res) => {
     let id = req.params.id;
     let body = _.pick(req.body, ['name', 'email', 'img', 'role', 'estado']); 
 
@@ -78,7 +80,7 @@ app.put('/usuario/:id', (req, res) => {
 });
 
 // Eliminar usuario
-app.delete('/usuario/:id', (req, res) => {
+app.delete('/usuario/:id', verificarToken, (req, res) => {
     let id = req.params.id;
 
 /*     en vez de eliminar usuario tambien podríamos
